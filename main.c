@@ -54,7 +54,8 @@
 
 
 void init(int16_t* data);
-static inline void print_array(int8_t active_button, int16_t *data, uint16_t frame_num, uint16_t frame_size);
+static inline void print_spectrogram(int8_t active_button, int16_t *data, uint16_t frame_num, uint16_t frame_size);
+static inline void print_audio(int8_t active_button, int16_t *data, uint16_t frame_num, uint16_t frame_size);
 
 /*******************************************************************************
 * Function Name: main
@@ -144,11 +145,11 @@ int main(void)
 			if (uart_enable()){
 				turn_led_on_off(active_button, 0);
 				change_led_duty_cycle(BUTTON2, led[BUTTON2].brightness_passive);
-				//print_array(active_button, recorded_data[0], frame_num, frame_size);
 
 				fft_q15(recorded_data[0], recorded_data[1], frame_num, frame_size);
-				//printf("\r\n");
-				print_array(active_button, recorded_data[1], frame_num, frame_size);
+
+				print_audio(active_button, recorded_data[0], frame_num, frame_size);
+				print_spectrogram(active_button, recorded_data[1], frame_num, frame_size);
 
 				printf("\r\n");
 				change_led_duty_cycle(BUTTON2, led[BUTTON2].brightness_active);
@@ -247,21 +248,9 @@ void init(int16_t* data){
  */
 
 
-static inline void print_array(int8_t active_button, int16_t *data, uint16_t frame_num, uint16_t frame_size){
+static inline void print_spectrogram(int8_t active_button, int16_t *data, uint16_t frame_num, uint16_t frame_size){
   static uint16_t counter = 0;
   uint32_t size = frame_num * frame_size;
-
-  /*if (-1 == active_button){
-    printf("S %d\r\n", counter);
-    printf("%d %d ", frame_num, frame_size);
-  }
-  else{
-    counter++;
-    if (0 == active_button)
-      printf("N %d\r\n", counter);
-    else
-      printf("Y %d\r\n", counter);
-  }*/
 
   if (0 == active_button)
         printf("SN %d\r\n", counter);
@@ -299,5 +288,24 @@ static inline void print_array(int8_t active_button, int16_t *data, uint16_t fra
     printf("%d ", 0);
     printf("%u ", zero_count);
   }
+  printf("\n\r");
+}
+
+
+static inline void print_audio(int8_t active_button, int16_t *data, uint16_t frame_num, uint16_t frame_size){
+	static uint16_t counter = 0;
+	uint32_t size = frame_num * frame_size;
+
+	if (0 == active_button)
+		printf("N %d\r\n", counter);
+	else
+		printf("Y %d\r\n", counter);
+	counter++;
+	printf("%d %d ", frame_num, frame_size/2);
+
+	uint32_t pos = 0;
+	for (int i=0; i<size; i++)
+		printf("%d ", data[i]);
+	printf("\n\r");
 }
 /* [] END OF FILE */
