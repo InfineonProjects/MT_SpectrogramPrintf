@@ -196,6 +196,9 @@ void record_audio(uint8_t active_button){
 	// Stop record
 	change_led_status(active_button);
 	Cy_DMA_Channel_Disable(CYBSP_DMA_PDM_HW, CYBSP_DMA_PDM_CHANNEL);
+
+	/* Reset the channel index for the next recording */
+	CYBSP_DMA_PDM_HW->CH_STRUCT[CYBSP_DMA_PDM_CHANNEL].CH_IDX = 0;
 }
 
 
@@ -211,9 +214,6 @@ void record_audio(uint8_t active_button){
 *
 *******************************************************************************/
 void play_record(){
-	/* Reset the channel index for the next recording */
-	CYBSP_DMA_PDM_HW->CH_STRUCT[CYBSP_DMA_PDM_CHANNEL].CH_IDX = 0;
-
 	/* Set up the DMAs to play the recorded data */
 	Cy_DMA_Descriptor_SetYloopDataCount(&CYBSP_DMA_I2S_Descriptor_0, BUFFER_SIZE/DMA_LOOP_SIZE);
 
